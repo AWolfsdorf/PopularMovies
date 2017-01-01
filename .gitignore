@@ -9,3 +9,7 @@
 .externalNativeBuild
 app/build.gradle
 app/build.gradle
+gen/
+libs/
+src/main/res/drawable/
+app/build.gradle
