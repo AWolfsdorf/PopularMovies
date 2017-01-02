@@ -43,13 +43,14 @@ public class MovieImageView {
 
     public String constructURL() {
         Uri uriBuilder =  new Uri.Builder()
-                .path("image.tmdb.org/t/p")
+                .scheme("http")
+                .encodedAuthority("image.tmdb.org/t/p")
                 .appendPath("w185")
-                .appendPath(imageUrl)
+                .appendEncodedPath(imageUrl)
                 .build();
-        //String url = uriBuilder.toString();
-        String url = "http://image.tmdb.org/t/p/w185/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg";
-        Log.v("La url es: ", url);
+        String url = uriBuilder.toString();
+        Log.v("Construct URL", url);
+        //String url = "http://image.tmdb.org/t/p/w185/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg";
         return url;
 
     }

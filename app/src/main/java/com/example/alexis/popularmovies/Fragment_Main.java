@@ -57,6 +57,16 @@ public class Fragment_Main extends Fragment {
     private ArrayList<MovieImageView> populateFakeData() {
         ArrayList<MovieImageView> fakeMovies = new ArrayList<>();
         fakeMovies.add(new MovieImageView("Interestelar", "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg"));
+        fakeMovies.add(new MovieImageView("Suicide Squad", "/hGFvcTr0IEXnIDowEk6pEnWMVpx.jpg"));
+        fakeMovies.add(new MovieImageView("Mascotas", "/iX3RJLK9Ywi9OXYZrCigNbNPSZY.jpg"));
+        fakeMovies.add(new MovieImageView("Civil War", "/pRGxkFA3kSvMQgRv2W2dCFulPzI.jpg"));
+        fakeMovies.add(new MovieImageView("Lucy", "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg"));
+        fakeMovies.add(new MovieImageView("Gladiator", "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg"));;
+        fakeMovies.add(new MovieImageView("Mama Mia", "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg"));
+        fakeMovies.add(new MovieImageView("Coherence", "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg"));
+        fakeMovies.add(new MovieImageView("Modern Times", "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg"));
+        fakeMovies.add(new MovieImageView("Interestelar", "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg"));
+        fakeMovies.add(new MovieImageView("Interestelar", "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg"));
 
 
         return fakeMovies;

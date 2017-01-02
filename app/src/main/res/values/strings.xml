@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Popular Movies</string>
     <string name="settings_menu_item_label">Settings</string>
+    <string name="movie_image_content_description">Movie Image</string>
 </resources>
