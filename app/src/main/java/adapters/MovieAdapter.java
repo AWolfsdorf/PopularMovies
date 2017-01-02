@@ -68,7 +68,6 @@ public class MovieAdapter extends ArrayAdapter<MovieImageView> {
 
         movieHolder.movieTitle.setText(mMovieImageViews.get(position).getMovieTitle());
 
-        final MovieHolder finalMovieHolder = movieHolder;
         Picasso.with(mContext)
                 .load(mMovieImageViews.get(position).constructURL())
                 //.error()
