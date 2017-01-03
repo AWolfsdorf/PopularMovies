@@ -2,38 +2,40 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:layout_width="wrap_content"
+    android:padding="@dimen/activity_vertical_margin"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="5dp"
-    android:padding="5dp"
     android:weightSum="1">
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="117dp"
-        android:layout_height="148dp"
-        android:layout_weight="0.94">
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="1">
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:srcCompat="@android:color/darker_gray"
-            android:id="@+id/movie_image" />
+            android:contentDescription="@string/movie_image_content_description"
+            android:id="@+id/movie_image"
+            android:cropToPadding="true"
+            android:background="@android:color/background_dark" />
 
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/movie_title"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:gravity="center"
             android:textSize="12sp"
-            android:layout_marginBottom="12dp"
-            android:layout_width="117dp" />
+            android:layout_width="match_parent" />
     </LinearLayout>
 
 </LinearLayout>

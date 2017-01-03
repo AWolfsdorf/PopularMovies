@@ -1,10 +1,7 @@
 package adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,37 +11,36 @@ import android.widget.TextView;
 
 import com.example.alexis.popularmovies.R;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.util.List;
 
-import objects.MovieImageView;
+import objects.Movie;
 
 
 /**
  * Created by Alexis on 31/12/2016.
  */
 
-public class MovieAdapter extends ArrayAdapter<MovieImageView> {
+public class MovieAdapter extends ArrayAdapter<Movie> {
 
     private final static String LOG_TAG = MovieAdapter.class.getSimpleName();
 
 
     Context mContext;
-    List<MovieImageView> mMovieImageViews;
+    List<Movie> mMovies;
 
-    public MovieAdapter(Context context, List<MovieImageView> objects) {
+    public MovieAdapter(Context context, List<Movie> objects) {
         super(context, R.layout.grid_item_layout, objects);
         this.mContext = context;
-        this.mMovieImageViews = objects;
+        this.mMovies = objects;
 
     }
 
     @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final View movieView;
-        MovieHolder movieHolder = null;
+        View movieView;
+        MovieHolder movieHolder;
 
         if (convertView == null) {
             LayoutInflater inflater = LayoutInflater.from(mContext);
@@ -53,6 +49,9 @@ public class MovieAdapter extends ArrayAdapter<MovieImageView> {
             movieHolder = new MovieHolder();
             movieHolder.movieImage = (ImageView) movieView.findViewById(R.id.movie_image);
             movieHolder.movieTitle = (TextView) movieView.findViewById(R.id.movie_title);
+            movieHolder.movieImage.setPadding(8,8,8,8);
+            movieHolder.movieImage.setAdjustViewBounds(true);
+            movieHolder.movieImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
             movieView.setTag(movieHolder);
 
@@ -63,43 +62,19 @@ public class MovieAdapter extends ArrayAdapter<MovieImageView> {
         movieHolder = (MovieHolder) movieView.getTag();
 
 
-        movieHolder.movieTitle.setText(mMovieImageViews.get(position).getMovieTitle());
+        movieHolder.movieTitle.setText(mMovies.get(position).getTitle());
 
-        Log.v(LOG_TAG, mMovieImageViews.get(position).constructURL());
         Picasso.with(mContext)
-                .load("http://i.imgur.com/DvpvklR.png")
-                .placeholder(R.raw.place_holder)
-                .error(R.raw.place_holder)
-                .noFade().resize(150,150)
-                .centerCrop()
-                .into(new Target() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        ((ImageView) movieView.findViewById(R.id.movie_image)).setImageBitmap(bitmap);
-                        Log.d(LOG_TAG, "BitmapLoaded");
-                    }
-
-                    @Override
-                    public void onBitmapFailed(Drawable errorDrawable) {
-                        Log.e(LOG_TAG,"Error Loading");
-                        ((ImageView) movieView.findViewById(R.id.movie_image)).setImageDrawable(errorDrawable);
-                    }
-
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                    }
-                });
-
-
+                .load(mMovies.get(position).constructURL())
+                //.error()
+                .into(movieHolder.movieImage);
 
 
         return movieView;
     }
 
-    static class MovieHolder /*implements Target*/{
+    static class MovieHolder{
         protected ImageView movieImage;
         protected TextView movieTitle;
-
     }
 }

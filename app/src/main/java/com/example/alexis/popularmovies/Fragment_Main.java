@@ -2,17 +2,27 @@ package com.example.alexis.popularmovies;
 
 
 import android.content.SharedPreferences;
+import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,10 +30,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import adapters.MovieAdapter;
-import objects.MovieImageView;
+import objects.Movie;
 
 /**
  * Created by Alexis on 30/12/2016.
@@ -31,9 +43,48 @@ import objects.MovieImageView;
 
 public class Fragment_Main extends Fragment {
 
-    ArrayList<MovieImageView> mMovies;
+    private MovieAdapter mMovieAdapter;
 
     public Fragment_Main(){
+
+    }
+
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_main, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int itemId = item.getItemId();
+
+        switch (itemId) {
+            case R.id.action_refresh:
+                updateMovies();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateMovies();
+    }
+
+    private void updateMovies() {
+        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask();
+        String[] params = {"popular"};
+        fetchMoviesTask.execute(params);
 
     }
 
@@ -42,36 +93,20 @@ public class Fragment_Main extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-
-        ArrayList<MovieImageView> fakeMovies = populateFakeData();
-        MovieAdapter movieAdapter = new MovieAdapter(
+        ArrayList<Movie> movies = new ArrayList<>();
+        mMovieAdapter = new MovieAdapter(
                 getActivity(),
-                fakeMovies
+                movies
         );
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview);
-        gridView.setAdapter(movieAdapter);
+        gridView.setAdapter(mMovieAdapter);
 
         return rootView;
     }
 
-    private ArrayList<MovieImageView> populateFakeData() {
-        ArrayList<MovieImageView> fakeMovies = new ArrayList<>();
-        fakeMovies.add(new MovieImageView("Interestelar", "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg"));
-
-
-        return fakeMovies;
-
-    }
-
-    public class FetchMoviesTask extends AsyncTask<String, Void, String[]> {
+    public class FetchMoviesTask extends AsyncTask<String, Void, ArrayList<Movie>> {
 
         private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
-
-        /* The date/time conversion code is going to be moved outside the asynctask later,
-         * so for convenience we're breaking it out into its own method now.
-         */
-
-
 
         /**
          * Take the String representing the complete forecast in JSON Format and
@@ -80,82 +115,59 @@ public class Fragment_Main extends Fragment {
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
-        /*private String[] getWeatherDataFromJson(String movieJsonStr, int numDays)
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        private ArrayList<Movie> getMoviesDataFromJson(String movieJsonStr)
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
-            final String OWM_LIST = "list";
+            final String OWM_RESULT = "results";
             final String OWM_WEATHER = "weather";
             final String OWM_TEMPERATURE = "temp";
             final String OWM_MAX = "max";
             final String OWM_MIN = "min";
             final String OWM_DESCRIPTION = "main";
 
-            JSONObject forecastJson = new JSONObject(movieJsonStr);
-            JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
+            JSONObject moviesJson = new JSONObject(movieJsonStr);
+            JSONArray moviesArray = moviesJson.getJSONArray(OWM_RESULT);
 
-            // OWM returns daily forecasts based upon the local time of the city that is being
-            // asked for, which means that we need to know the GMT offset to translate this data
-            // properly.
+            ArrayList<Movie> movies = new ArrayList<>();
+            JSONObject movieJsonObject;
+            for(int i = 0; i < moviesArray.length(); i++) {
+                movieJsonObject = moviesArray.getJSONObject(i);
+                String movieTitle = movieJsonObject.getString("title");
+                String movieURL = movieJsonObject.getString("poster_path");
+                String originalTitle = movieJsonObject.getString("original_title");
+                String originalLanguage = movieJsonObject.getString("original_language");
+                boolean adult = movieJsonObject.getBoolean("adult");
+                String description = movieJsonObject.getString("overview");
+                String dateStr = movieJsonObject.getString("release_date");
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                format.setLenient(false);
+                Date fechaLanzamiento = null;
+                try {
+                    fechaLanzamiento = format.parse(dateStr);
+                    System.out.println(fechaLanzamiento);
+                } catch (ParseException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
 
-            // Since this data is also sent in-order and the first day is always the
-            // current day, we're going to take advantage of that to get a nice
-            // normalized UTC date for all of our weather.
+                double voteAverage = movieJsonObject.getDouble("vote_average");
 
-            Time dayTime = new Time();
-            dayTime.setToNow();
+                movies.add(new Movie(movieTitle,originalTitle,originalLanguage, movieURL,
+                        adult, description, fechaLanzamiento, voteAverage));
 
-            // we start at the day returned by local time. Otherwise this is a mess.
-            int julianStartDay = Time.getJulianDay(System.currentTimeMillis(), dayTime.gmtoff);
-
-            // now we work exclusively in UTC
-            dayTime = new Time();
-
-            String[] resultStrs = new String[numDays];
-            for(int i = 0; i < weatherArray.length(); i++) {
-                // For now, using the format "Day, description, hi/low"
-                String day;
-                String description;
-                String highAndLow;
-
-                // Get the JSON object representing the day
-                JSONObject dayForecast = weatherArray.getJSONObject(i);
-
-                // The date/time is returned as a long.  We need to convert that
-                // into something human-readable, since most people won't read "1400356800" as
-                // "this saturday".
-                long dateTime;
-                // Cheating to convert this to UTC time, which is what we want anyhow
-                dateTime = dayTime.setJulianDay(julianStartDay+i);
-                day = getReadableDateString(dateTime);
-
-                // description is in a child array called "weather", which is 1 element long.
-                JSONObject weatherObject = dayForecast.getJSONArray(OWM_WEATHER).getJSONObject(0);
-                description = weatherObject.getString(OWM_DESCRIPTION);
-
-                // Temperatures are in a child object called "temp".  Try not to name variables
-                // "temp" when working with temperature.  It confuses everybody.
-                JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
-
-                FetchWeatherTask weatherTask = new FetchWeatherTask();
-
-                double high = temperatureObject.getDouble(OWM_MAX);
-                double low = temperatureObject.getDouble(OWM_MIN);
-
-
-
-                highAndLow = formatHighLows(high, low);
-                resultStrs[i] = day + " - " + description + " - " + highAndLow;
             }
-            return resultStrs;
+            return movies;
 
-        }*/
+        }
 
 
+        @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
-        protected String[] doInBackground(String... params) {
+        protected ArrayList<Movie> doInBackground(String... params) {
 
-            // If there's no zip code, there's nothing to look up.  Verify size of params.
+            // If there's no movie param, there's nothing to look up.  Verify size of params.
             if (params.length == 0) {
                 return null;
             }
@@ -168,26 +180,18 @@ public class Fragment_Main extends Fragment {
             // Will contain the raw JSON response as a string.
             String movieJsonStr = null;
 
-            String format = "json";
-            int numDays = 7;
-
             try {
-                // Construct the URL for the OpenWeatherMap query
-                // Possible parameters are avaiable at OWM's forecast API page, at
-                // http://openweathermap.org/API#forecast
                 SharedPreferences sharPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 //TODO agregar las preferencias de ordenamiento por pulopares o mejor puntuadas
 
                 final String FORECAST_BASE_URL =
                         "https://api.themoviedb.org/3/movie";
-                final String MODE_PARAM = "popular";
-                final String FORMAT_PARAM = "mode";
-                final String APPID_PARAM = "APPID";
+                final String MODE_PARAM = params[0];
+                final String API_KEY_PARAM = "api_key";
 
                 Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                         .appendPath(MODE_PARAM)
-                        .appendQueryParameter(FORMAT_PARAM, format)
-                        .appendQueryParameter(APPID_PARAM, BuildConfig.MOVIE_DB_API_KEY)
+                        .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIE_DB_API_KEY)
                         .build();
 
                 URL url = new URL(builtUri.toString());
@@ -236,25 +240,25 @@ public class Fragment_Main extends Fragment {
                     }
                 }
             }
-            /*
+
             try {
-                return getWeatherDataFromJson(movieJsonStr, numDays);
+                return getMoviesDataFromJson(movieJsonStr);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
-            }*/
+            }
 
             // This will only happen if there was an error getting or parsing the forecast.
             return null;
         }
 
         @Override
-        protected void onPostExecute(String[] result) {
+        protected void onPostExecute(ArrayList<Movie> result) {
             if (result != null) {
-                mMovies.clear();
-               /* for(String dayForecastStr : result) {
-                    mMoviesAdapter.add();
-                }*/
+                mMovieAdapter.clear();
+                for(Movie movie : result) {
+                    mMovieAdapter.add(movie);
+                }
                 // New data is back from the server.  Hooray!
             }
         }
