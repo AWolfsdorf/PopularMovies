@@ -5,6 +5,7 @@
 
     <item android:title="@string/settings_menu_item_label"
         android:id="@+id/action_settings"
+        android:orderInCategory="100"
         android:showAsAction="never"
         android:icon="@android:drawable/ic_menu_manage"
         tools:ignore="AppCompatResource" />

@@ -83,7 +83,7 @@ public class Fragment_Main extends Fragment {
 
     private void updateMovies() {
         FetchMoviesTask fetchMoviesTask = new FetchMoviesTask();
-        String[] params = {"popular"};
+        String[] params = {"popular","es-AR"};
         fetchMoviesTask.execute(params);
 
     }
@@ -186,12 +186,17 @@ public class Fragment_Main extends Fragment {
 
                 final String FORECAST_BASE_URL =
                         "https://api.themoviedb.org/3/movie";
-                final String MODE_PARAM = params[0];
+
                 final String API_KEY_PARAM = "api_key";
+                final String LANGUAGE_PARAM = "language";
+
+                String movieSortation = params[0];
+                String language = params[1];
 
                 Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                        .appendPath(MODE_PARAM)
+                        .appendPath(movieSortation)
                         .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIE_DB_API_KEY)
+                        .appendQueryParameter(LANGUAGE_PARAM, language)
                         .build();
 
                 URL url = new URL(builtUri.toString());
@@ -259,7 +264,6 @@ public class Fragment_Main extends Fragment {
                 for(Movie movie : result) {
                     mMovieAdapter.add(movie);
                 }
-                // New data is back from the server.  Hooray!
             }
         }
     }

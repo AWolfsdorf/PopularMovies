@@ -51,7 +51,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
             movieHolder.movieTitle = (TextView) movieView.findViewById(R.id.movie_title);
             movieHolder.movieImage.setPadding(8,8,8,8);
             movieHolder.movieImage.setAdjustViewBounds(true);
-            movieHolder.movieImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            movieHolder.movieImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             movieView.setTag(movieHolder);
 
