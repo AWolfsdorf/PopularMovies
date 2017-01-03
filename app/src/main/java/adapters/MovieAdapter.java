@@ -1,10 +1,7 @@
 package adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,29 +11,28 @@ import android.widget.TextView;
 
 import com.example.alexis.popularmovies.R;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.util.List;
 
-import objects.MovieImageView;
+import objects.Movie;
 
 
 /**
  * Created by Alexis on 31/12/2016.
  */
 
-public class MovieAdapter extends ArrayAdapter<MovieImageView> {
+public class MovieAdapter extends ArrayAdapter<Movie> {
 
     private final static String LOG_TAG = MovieAdapter.class.getSimpleName();
 
 
     Context mContext;
-    List<MovieImageView> mMovieImageViews;
+    List<Movie> mMovies;
 
-    public MovieAdapter(Context context, List<MovieImageView> objects) {
+    public MovieAdapter(Context context, List<Movie> objects) {
         super(context, R.layout.grid_item_layout, objects);
         this.mContext = context;
-        this.mMovieImageViews = objects;
+        this.mMovies = objects;
 
     }
 
@@ -66,10 +62,10 @@ public class MovieAdapter extends ArrayAdapter<MovieImageView> {
         movieHolder = (MovieHolder) movieView.getTag();
 
 
-        movieHolder.movieTitle.setText(mMovieImageViews.get(position).getMovieTitle());
+        movieHolder.movieTitle.setText(mMovies.get(position).getTitle());
 
         Picasso.with(mContext)
-                .load(mMovieImageViews.get(position).constructURL())
+                .load(mMovies.get(position).constructURL())
                 //.error()
                 .into(movieHolder.movieImage);
 
@@ -77,26 +73,8 @@ public class MovieAdapter extends ArrayAdapter<MovieImageView> {
         return movieView;
     }
 
-    static class MovieHolder implements Target{
+    static class MovieHolder{
         protected ImageView movieImage;
         protected TextView movieTitle;
-
-
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            movieImage.setImageBitmap(bitmap);
-            Log.v("onBitmapLoaded", "Image Loaded");
-        }
-
-        @Override
-        public void onBitmapFailed(Drawable errorDrawable) {
-            movieImage.setImageDrawable(errorDrawable);
-            Log.e(LOG_TAG, "Error on loading Image with Picasso");
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
-            movieImage.setImageDrawable(placeHolderDrawable);
-        }
     }
 }
